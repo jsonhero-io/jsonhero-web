@@ -10,7 +10,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useJsonColumnViewAPI } from "~/hooks/useJsonColumnView";
 import { useJsonSearchApi } from "~/hooks/useJsonSearch";
 
-export function SearchBar() {
+export function SearchBar({ isShortcutPanelOpen, setIsShortcutPanelOpen }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const { goToNodeId } = useJsonColumnViewAPI();
   const searchApi = useJsonSearchApi();
@@ -19,6 +19,7 @@ export function SearchBar() {
     "cmd+k",
     (e) => {
       e.preventDefault();
+      setIsShortcutPanelOpen(false);
       setIsOpen(true);
     },
     [setIsOpen]
@@ -28,8 +29,7 @@ export function SearchBar() {
     <Dialog open={isOpen} onOpenChange={() => !isOpen && searchApi.reset()}>
       <DialogTrigger
         className="focus:outline-none focus-visible:outline-none"
-        onClick={() => setIsOpen(true)}
-      >
+        onClick={() => setIsOpen(true)}>
         <div className="flex justify-between items-center group w-44 py-[3px] rounded-sm bg-slate-300 transition hover:bg-slate-400 hover:bg-opacity-50 dark:bg-slate-800 dark:text-slate-400 hover:cursor-pointer hover:dark:bg-slate-700 hover:dark:bg-opacity-70">
           <div className="flex items-center pl-1">
             <SearchIcon className="w-4 h-4 mr-1" />
@@ -53,8 +53,7 @@ export function SearchBar() {
           "top-0 left-[50%] -translate-x-[50%]",
           "mt-[60px]",
           "bg-white border-[1px] border-slate-500 dark:border-slate-700 dark:bg-slate-800"
-        )}
-      >
+        )}>
         <SearchPalette
           onClose={() => setIsOpen(false)}
           onSelect={(entry) => {
