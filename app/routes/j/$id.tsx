@@ -1,15 +1,8 @@
-import {
-  LoaderFunction,
-  MetaFunction,
-  Outlet,
-  useLoaderData,
-  useLocation,
-  useParams,
-} from "remix";
+import { LoaderFunction, MetaFunction, Outlet, useLoaderData, useLocation, useParams } from "remix";
 import invariant from "tiny-invariant";
 import { getDocument, JSONDocument } from "~/jsonDoc.server";
 import { JsonDocProvider } from "~/hooks/useJsonDoc";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { JsonProvider } from "~/hooks/useJson";
 import { Footer } from "~/components/Footer";
 import { Header } from "~/components/Header";
@@ -49,9 +42,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     const jsonResponse = await safeFetch(doc.url);
 
     if (!jsonResponse.ok) {
-      console.log(
-        `Failed to fetch ${doc.url}: ${jsonResponse.status} (${jsonResponse.statusText})`
-      );
+      console.log(`Failed to fetch ${doc.url}: ${jsonResponse.status} (${jsonResponse.statusText})`);
 
       throw new Response(jsonResponse.statusText, {
         status: jsonResponse.status,
@@ -113,11 +104,7 @@ type LoaderData = {
   minimal?: boolean;
 };
 
-export const meta: MetaFunction = ({
-  data,
-}: {
-  data: LoaderData | undefined;
-}) => {
+export const meta: MetaFunction = ({ data }: { data: LoaderData | undefined }) => {
   if (!data) {
     return { title: "JSON Hero", robots: "noindex,nofollow" };
   }
@@ -128,6 +115,7 @@ export const meta: MetaFunction = ({
 };
 
 export default function JsonDocumentRoute() {
+  let [isShortcutPanelOpen, setIsShortcutPanelOpen] = useState(false);
   const loaderData = useLoaderData<LoaderData>();
 
   // Redirect back to `/j/${slug}` if the path is set, that way refreshing the page doesn't go to the path in the url.
@@ -157,10 +145,7 @@ export default function JsonDocumentRoute() {
                       <LargeTitle>JSON Hero only works on desktop</LargeTitle>
                       <LargeTitle>👇</LargeTitle>
                       <Body>(For now!)</Body>
-                      <a
-                        href="/"
-                        className="mt-8 text-white bg-lime-500 rounded-sm px-4 py-2"
-                      >
+                      <a href="/" className="mt-8 text-white bg-lime-500 rounded-sm px-4 py-2">
                         Back to Home
                       </a>
                     </div>
@@ -170,16 +155,13 @@ export default function JsonDocumentRoute() {
                     <div className="bg-slate-50 flex-grow transition dark:bg-slate-900">
                       <div className="main-container flex justify-items-stretch h-full">
                         <SideBar />
-                        <JsonView>
+                        <JsonView
+                          isShortcutPanelOpen={isShortcutPanelOpen}
+                          setIsShortcutPanelOpen={setIsShortcutPanelOpen}>
                           <Outlet />
                         </JsonView>
 
-                        <Resizable
-                          isHorizontal={true}
-                          initialSize={500}
-                          minimumSize={280}
-                          maximumSize={900}
-                        >
+                        <Resizable isHorizontal={true} initialSize={500} minimumSize={280} maximumSize={900}>
                           <div className="info-panel flex-grow h-full">
                             <InfoPanel />
                           </div>
@@ -187,7 +169,7 @@ export default function JsonDocumentRoute() {
                       </div>
                     </div>
 
-                    <Footer></Footer>
+                    <Footer isOpen={isShortcutPanelOpen} setIsOpen={setIsShortcutPanelOpen}></Footer>
                   </div>
                 </div>
               </JsonTreeViewProvider>
@@ -208,9 +190,7 @@ export function CatchBoundary() {
           <div className="">
             <Logo />
           </div>
-          <PageNotFoundTitle className="text-center leading-tight">
-            404
-          </PageNotFoundTitle>
+          <PageNotFoundTitle className="text-center leading-tight">404</PageNotFoundTitle>
         </div>
         <div className="text-center leading-snug text-white">
           <ExtraLargeTitle className="text-slate-200 mb-8">
@@ -221,8 +201,7 @@ export function CatchBoundary() {
           </SmallSubtitle>
           <a
             href="/"
-            className="mx-auto w-24 bg-lime-500 text-slate-900 text-lg font-bold px-5 py-1 rounded-sm uppercase whitespace-nowrap cursor-pointer opacity-90 hover:opacity-100 transition"
-          >
+            className="mx-auto w-24 bg-lime-500 text-slate-900 text-lg font-bold px-5 py-1 rounded-sm uppercase whitespace-nowrap cursor-pointer opacity-90 hover:opacity-100 transition">
             HOME
           </a>
         </div>
